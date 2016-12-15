@@ -7,7 +7,7 @@
 require('./init.js');
 var assert = require('assert');
 
-var db, EnumModel, ANIMAL_ENUM;
+var db, BlobModel, EnumModel, ANIMAL_ENUM;
 var mysqlVersion;
 
 describe('MySQL specific datatypes', function() {
@@ -72,7 +72,22 @@ describe('MySQL specific datatypes', function() {
       });
     });
   });
-
+  it('should create a model instance with binary types', function(done) {
+    var str = 'This is a test';
+    var str2 = 'This is test2';
+    var name = 'bob';
+    var bob = {name: name, bin: new Buffer.from(str)};
+    var bm = BlobModel.create(bob, function (err, obj) {
+      assert.ok(!err);
+      assert.equal(obj.bin.toString(), str);
+      BlobModel.findOne({where: {name: name}}, function (err, found) {
+        assert.ok(!err);
+        assert.equal(found.bin.toString(), str);
+        console.log(found.bin.toString());
+        done();
+      });
+    });
+  });
   it('should disconnect when done', function(done) {
     db.disconnect();
     done();
@@ -93,7 +108,10 @@ function setup(done) {
     note: Object,
     extras: 'JSON',
   });
-
+  BlobModel = db.define('BlobModel', {
+    bin: {type: Buffer, dataType: 'blob', null: false},
+    name: {type: String}
+  });
   query('SELECT VERSION()', function(err, res) {
     mysqlVersion = res && res[0] && res[0]['VERSION()'];
     blankDatabase(db, done);

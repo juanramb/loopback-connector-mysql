@@ -74,7 +74,6 @@ describe('MySQL specific datatypes', function() {
   });
   it('should create a model instance with binary types', function(done) {
     var str = 'This is a test';
-    var str2 = 'This is test2';
     var name = 'bob';
     var bob = {name: name, bin: new Buffer.from(str)};
     var bm = BlobModel.create(bob, function (err, obj) {
